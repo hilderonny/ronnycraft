@@ -21,6 +21,7 @@
     "browserify": "^14.1.0",
     "express": "^4.14.1",
     "mongodb": "^2.2.24",
-    "voxel-hello-world": "^0.6.0"
+    "voxel-engine": "^0.20.2",
+    "voxel-player": "^0.1.0"
   }
 }
