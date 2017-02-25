@@ -10,6 +10,6 @@ var game = voxelEngine({
 
 game.appendTo(document.body);
 
-var avatar = voxelPlayer(game)('texture/player.png');
+var avatar = voxelPlayer(game)('textures/player.png');
 avatar.possess();
 avatar.yaw.position.set(0, 1, 4);
