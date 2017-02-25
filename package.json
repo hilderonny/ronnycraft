@@ -1,0 +1,24 @@
+{
+  "name": "ronnycraft",
+  "version": "1.0.0",
+  "description": "Minecraft clone based on voxel.js and running on NodeJS / MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hilderonny/ronnycraft.git"
+  },
+  "author": "Ronny Hildebrandt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hilderonny/ronnycraft/issues"
+  },
+  "homepage": "https://github.com/hilderonny/ronnycraft#readme",
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "express": "^4.14.1",
+    "mongodb": "^2.2.24"
+  }
+}
