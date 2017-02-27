@@ -2,13 +2,46 @@ var voxelEngine = require('voxel-engine');
 var voxelPlayer = require('voxel-player');
 var voxelHighlight = require('voxel-highlight');
 
+var game;
+
+// Simulate asynchronous chunk loading
+function loadChunk(x, y, z, callback) {
+    setTimeout(function() {
+        var chunk = {
+            position:[x,y,z],
+            voxels:new Int8Array(32*32*32),
+            dims:[32,32,32]
+        }
+        var y32 = y * 32;
+        for (vz = 0, n = 0; vz < 32; ++vz) {
+            for (vy = 0, y_vy = y32; vy < 32; ++vy, ++y_vy) {
+                for (vx = 0; vx < 32; ++vx, ++n) {
+                    if (y_vy < 0) {
+                        chunk.voxels[n] = 2;
+                    } else if (y_vy === 0) {
+                        chunk.voxels[n] = 1;
+                    }
+                }
+            }
+        }
+        game.showChunk(chunk);
+        if (callback) callback();
+    }, 3000); // Wait 3 seconds before loading, simulating network traffic
+}
+
 // Initialize the game engine itself
-var game = voxelEngine({
+game = voxelEngine({
     materials: [['grass', 'dirt', 'grass_dirt'], 'dirt'],
-    generate: function(x, y, z) {
-        if (y < 0) return 2;
-        if (y === 0) return 1;
-        return 0;
+    generateVoxelChunk: function (low, high, x, y, z) {
+        // Trigger asynchronous load and return empty chunk
+        loadChunk(x, y, z);
+        // Return empty chunk as long as chunk gets loaded
+        return {
+            position:[x,y,z],
+            voxels:new Int8Array(32*32*32),
+            dims:[32,32,32],
+            empty:true
+        };
     },
     controls: {
         jumpMaxSpeed: 0.008, // Limit jump height
@@ -19,8 +52,11 @@ game.appendTo(document.body);
 
 // Create player as avatar
 var avatar = voxelPlayer(game)('textures/player.png');
-avatar.possess();
-avatar.yaw.position.set(0, 1, 4);
+loadChunk(0, 0, 0, function() { // Position the avatar when the first chunk is loaded
+    avatar.possess();
+    avatar.yaw.position.set(4, 1, 4);
+});
+
 window.addEventListener('keydown', function (ev) { // Pressing "R" toggles between perspectives
     if (ev.keyCode === 'R'.charCodeAt(0)) {
         avatar.toggle();
