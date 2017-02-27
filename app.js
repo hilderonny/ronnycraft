@@ -13,6 +13,7 @@ MongoClient.connect(dbUri, (err, db) => {
     if(err) throw err;
 
     // Generate client side includes
+    console.log(`Generating client side code`);
     browserify.add(__dirname + '/client/html/index.js');
     browserify.bundle().pipe(fs.createWriteStream(__dirname + '/client/html/generated.js'));
 
