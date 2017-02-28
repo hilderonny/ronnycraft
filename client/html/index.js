@@ -3,6 +3,7 @@ var voxelPlayer = require('voxel-player');
 var voxelReach = require('voxel-reach');
 
 var game;
+var avatar;
 
 // Initialize Websockets
 var socket = io();
@@ -12,30 +13,19 @@ socket.on('msg', function(message) {
         case 'remove': game.setBlock(message.position, 0); break;
     }
 });
+socket.on('loadChunk', function(chunk) {
+    game.showChunk(chunk);
+    if (!avatar) {
+        avatar = voxelPlayer(game)('textures/player.png');
+        avatar.possess();
+        avatar.yaw.position.set(4, 1, 4);
+    }
+});
 
 // Simulate asynchronous chunk loading
 function loadChunk(x, y, z, callback) {
-    setTimeout(function() {
-        var chunk = {
-            position:[x,y,z],
-            voxels:new Int8Array(32*32*32),
-            dims:[32,32,32]
-        }
-        var y32 = y * 32;
-        for (vz = 0, n = 0; vz < 32; ++vz) {
-            for (vy = 0, y_vy = y32; vy < 32; ++vy, ++y_vy) {
-                for (vx = 0; vx < 32; ++vx, ++n) {
-                    if (y_vy < 0) {
-                        chunk.voxels[n] = 2;
-                    } else if (y_vy === 0) {
-                        chunk.voxels[n] = 1;
-                    }
-                }
-            }
-        }
-        game.showChunk(chunk);
-        if (callback) callback();
-    }, 1); // Wait 3 seconds before loading, simulating network traffic
+    var position = [x,y,z];
+    socket.emit('loadChunk', position);
 }
 
 // Initialize the game engine itself
@@ -61,13 +51,6 @@ game = voxelEngine({
     }
 });
 game.appendTo(document.body);
-
-// Create player as avatar
-var avatar = voxelPlayer(game)('textures/player.png');
-loadChunk(0, 0, 0, function() { // Position the avatar when the first chunk is loaded
-    avatar.possess();
-    avatar.yaw.position.set(4, 1, 4);
-});
 
 window.addEventListener('keydown', function (ev) { // Pressing "R" toggles between perspectives
     if (ev.keyCode === 'R'.charCodeAt(0)) {
