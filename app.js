@@ -27,6 +27,7 @@ MongoClient.connect(dbUri, (err, db) => {
 
     // Server static content
     app.use(express.static(__dirname + '/client/html'));
+    app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
     // Start application
     app.listen(port, function() {
