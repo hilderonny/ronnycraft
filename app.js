@@ -2,10 +2,21 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var browserify = require('browserify')();
 var fs = require('fs');
+var http = require('http');
+var socketIo = require('socket.io');
 
 var app = express();
+var server = http.createServer(app);
 var port = process.env.PORT || 5000;
 var dbUri = process.env.MONGODB_URI || 'mongodb://localhost/ronnycraft';
+
+// Initialize websockets
+var io = socketIo(server);
+io.on('connection', (socket) => {
+    socket.on('msg', (message) => {
+        io.emit('msg', message); // Also send back to sender so that the sender can also handle block creation / deletion
+    });
+});
 
 // http://mongodb.github.io/node-mongodb-native/driver-articles/mongoclient.html#mongoclient-connection-pooling
 // Initialize database connection before starting the app
@@ -30,7 +41,7 @@ MongoClient.connect(dbUri, (err, db) => {
     app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
     // Start application
-    app.listen(port, function() {
+    server.listen(port, function() {
         console.log(`Application is running on port ${port}`);
     });
 });

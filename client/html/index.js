@@ -4,6 +4,15 @@ var voxelReach = require('voxel-reach');
 
 var game;
 
+// Initialize Websockets
+var socket = io();
+socket.on('msg', function(message) {
+    switch(message.type) {
+        case 'create': game.createBlock(message.position, 2); break;
+        case 'remove': game.setBlock(message.position, 0); break;
+    }
+});
+
 // Simulate asynchronous chunk loading
 function loadChunk(x, y, z, callback) {
     setTimeout(function() {
@@ -70,20 +79,21 @@ window.addEventListener('keydown', function (ev) { // Pressing "R" toggles betwe
 var reach = voxelReach(game, {reachDistance: 8});
 reach.on('use', function(target) { 
     if (target) {
-        game.createBlock(target.adjacent, 2);
+        var position = target.adjacent;
+        // Only send message to server. The creation is done when the message returns from the server above
+        socket.emit('msg', {type:'create',position:position});
     }
 });
 reach.on('mining', function(target) { 
     if (target) {
-        game.setBlock(target.voxel, 0);
+        var position = target.voxel;
+        // Only send message to server. The deletion is done when the message returns from the server above
+        socket.emit('msg', {type:'remove',position:position});
     }
 });
 
 /*
 TO IMPLEMENT:
-
-- voxel-mine : Abbau von Blöcken
-- voxel-use : Rechte Maustaste, Platzieren von Objekten
 
 - Websockets zu  Austausch von Informationen unter Clients (socket.io)
 - Serverdatenbank für Chunks
