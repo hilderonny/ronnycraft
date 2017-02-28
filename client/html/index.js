@@ -1,6 +1,6 @@
 var voxelEngine = require('voxel-engine');
 var voxelPlayer = require('voxel-player');
-var voxelHighlight = require('voxel-highlight');
+var voxelReach = require('voxel-reach');
 
 var game;
 
@@ -26,12 +26,15 @@ function loadChunk(x, y, z, callback) {
         }
         game.showChunk(chunk);
         if (callback) callback();
-    }, 3000); // Wait 3 seconds before loading, simulating network traffic
+    }, 1); // Wait 3 seconds before loading, simulating network traffic
 }
 
 // Initialize the game engine itself
 game = voxelEngine({
-    materials: [['grass', 'dirt', 'grass_dirt'], 'dirt'],
+    materials: [
+        ['grass', 'dirt', 'grass_dirt'], 
+        'dirt'
+    ],
     generateVoxelChunk: function (low, high, x, y, z) {
         // Trigger asynchronous load and return empty chunk
         loadChunk(x, y, z);
@@ -63,17 +66,16 @@ window.addEventListener('keydown', function (ev) { // Pressing "R" toggles betwe
     }
 });
 
-// Add highlighting of element the player looks materials
-var highlighter = voxelHighlight(game);
-highlighter.on('highlight', function (voxelPos) { highlighter.erasePosition = voxelPos });
-highlighter.on('remove', function (voxelPos) { highlighter.erasePosition = null });
-highlighter.on('highlight-adjacent', function (voxelPos) { highlighter.placePosition = voxelPos });
-highlighter.on('remove-adjacent', function (voxelPos) { highlighter.placePosition = null });
-
-// Handle clicks on blocks
-game.on('fire', function(target, state) {
-    if (highlighter.erasePosition) {
-        game.setBlock(highlighter.erasePosition, 0);
+// Handle click on blocks to add and remove them
+var reach = voxelReach(game, {reachDistance: 8});
+reach.on('use', function(target) { 
+    if (target) {
+        game.createBlock(target.adjacent, 2);
+    }
+});
+reach.on('mining', function(target) { 
+    if (target) {
+        game.setBlock(target.voxel, 0);
     }
 });
 
