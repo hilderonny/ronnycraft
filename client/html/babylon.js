@@ -1,15 +1,35 @@
+function createMaterials(scene) {
+    scene.materials = [];
+    var grassMaterial = new BABYLON.StandardMaterial(null, scene);
+    grassMaterial.diffuseTexture = new BABYLON.Texture("textures/grass.png", scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+    scene.materials.push(grassMaterial);
+}
+
+function createBlock(scene, x, y, z) {
+    var block = BABYLON.Mesh.CreateBox(null, 1, scene);
+    block.position = new BABYLON.Vector3(x, y, z);
+    block.material = scene.materials[0];
+}
+
 function createScene(engine) {
     var scene = new BABYLON.Scene(engine);
-    scene.clearColor = new BABYLON.Color3.FromHexString("#BFD1E5");
+    scene.clearColor = new BABYLON.Color3.FromHexString('#BFD1E5');
 
-    var camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+    createMaterials(scene);
+
+    var camera = new BABYLON.UniversalCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(engine.getRenderingCanvas(), false);
 
-    var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-    light.intensity = .5;
-    
-    var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
+    new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
+
+    var w = 100;
+    for (var x = -w; x < w; x++) {
+        for (var z = -w; z < w; z++) {
+            createBlock(scene, x, 0, z);
+        }
+    }
+
     return scene;
 }
 
