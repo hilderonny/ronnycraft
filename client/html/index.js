@@ -78,12 +78,10 @@ reach.on('mining', function(target) {
 /*
 TO IMPLEMENT:
 
-- Websockets zu  Austausch von Informationen unter Clients (socket.io)
-- Serverdatenbank für Chunks
-
 
 - voxel-inventory-hotbar : Inventarleiste
 - voxel-harvest : Blöcke in Inventar verschieben nach Abbau
+- Blocktypen
 
 - Mobile Version mit Touch-Gesten
 
